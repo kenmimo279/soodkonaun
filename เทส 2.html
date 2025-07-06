@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baccarat Pattern Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .round-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .input-circles {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .input-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .input-circle.banker {
+            background: #ff4757;
+            border-color: #ff4757;
+        }
+
+        .input-circle.player {
+            background: #3742fa;
+            border-color: #3742fa;
+        }
+
+        .bet-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .bet-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bet-btn.banker {
+            background: #ff4757;
+            color: white;
+        }
+
+        .bet-btn.player {
+            background: #3742fa;
+            color: white;
+        }
+
+        .bet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .bet-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .prediction-circles {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .prediction-circle.banker {
+            background: #ff4757;
+            border-color: #ff4757;
+        }
+
+        .prediction-circle.player {
+            background: #3742fa;
+            border-color: #3742fa;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .action-btn.predict {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .action-btn.next-round {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        }
+
+        .action-btn.calculate {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .result-round {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+        }
+
+        .result-symbols {
+            display: flex;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .result-symbol {
+            font-size: 16px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-indicator {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .status-waiting {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .status-ready {
+            background: rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Baccarat Analyzer</h1>
+            <div class="round-info">
+                <div>รอบที่: <span id="currentRound">1</span></div>
+                <div>เล่น: <span id="playedRounds">0</span></div>
+            </div>
+        </div>
+
+        <!-- Phase 1: Input Historical Data -->
+        <div class="section" id="inputSection">
+            <div class="section-title">กรอกผล 5 ตัวล่าสุด</div>
+            <div class="input-circles" id="inputCircles">
+                <div class="input-circle" data-index="0"></div>
+                <div class="input-circle" data-index="1"></div>
+                <div class="input-circle" data-index="2"></div>
+                <div class="input-circle" data-index="3"></div>
+                <div class="input-circle" data-index="4"></div>
+            </div>
+            
+            <div class="bet-buttons">
+                <button class="bet-btn banker" onclick="addInput('B')">BANKER</button>
+                <button class="bet-btn player" onclick="addInput('P')">PLAYER</button>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="removeLastInput()">↶ ลบตัวล่าสุด</button>
+                <button class="control-btn" onclick="clearInputs()">🗑️ เคลียร์</button>
+                <button class="control-btn" onclick="resetAll()">🔄 เริ่มใหม่</button>
+            </div>
+
+            <button class="action-btn predict" id="predictBtn" onclick="generatePrediction()" disabled>
+                🔮 ทำนายรอบถัดไป
+            </button>
+        </div>
+
+        <!-- Phase 2: Show Prediction -->
+        <div class="section hidden" id="predictionSection">
+            <div class="section-title">การทำนาย 5 ตัวรอบถัดไป</div>
+            <div class="prediction-circles" id="predictionCircles">
+                <div class="prediction-circle" data-index="0"></div>
+                <div class="prediction-circle" data-index="1"></div>
+                <div class="prediction-circle" data-index="2"></div>
+                <div class="prediction-circle" data-index="3"></div>
+                <div class="prediction-circle" data-index="4"></div>
+            </div>
+            <button class="action-btn next-round" onclick="startNextRound()">
+                ▶️ เริ่มรอบถัดไป
+            </button>
+        </div>
+
+        <!-- Phase 3: Input Actual Results -->
+        <div class="section hidden" id="actualSection">
+            <div class="section-title">กรอกผลจริงรอบที่ <span id="actualRoundNumber">2</span></div>
+            <div class="status-indicator" id="statusIndicator">
+                กำลังรอผลจริง...
+            </div>
+            <div class="input-circles" id="actualCircles">
+                <div class="input-circle" data-index="0"></div>
+                <div class="input-circle" data-index="1"></div>
+                <div class="input-circle" data-index="2"></div>
+                <div class="input-circle" data-index="3"></div>
+                <div class="input-circle" data-index="4"></div>
+            </div>
+            
+            <div class="bet-buttons">
+                <button class="bet-btn banker" onclick="addActual('B')">BANKER</button>
+                <button class="bet-btn player" onclick="addActual('P')">PLAYER</button>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" onclick="removeLastActual()">↶ ลบตัวล่าสุด</button>
+                <button class="control-btn" onclick="clearActual()">🗑️ เคลียร์</button>
+            </div>
+
+            <button class="action-btn calculate" id="calculateBtn" onclick="calculateAccuracy()" disabled>
+                📊 คำนวณผล
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section">
+            <div class="section-title">ผลลัพธ์การทาย</div>
+            <div class="results-list" id="resultsList">
+                <div style="text-align: center; opacity: 0.6; padding: 20px;">
+                    ยังไม่มีผลลัพธ์
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">0</div>
+                <div class="stat-label">ถูก</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="wrongCount">0</div>
+                <div class="stat-label">ผิด</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="accuracyRate">0%</div>
+                <div class="stat-label">ความแม่นยำ</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInputs = [];
+        let currentPrediction = [];
+        let actualResults = [];
+        let allResults = [];
+        let currentRound = 1;
+        let playedRounds = 0;
+        let correctPredictions = 0;
+        let wrongPredictions = 0;
+        let patternHistory = [];
+        let gamePhase = 'input'; // 'input', 'prediction', 'actual', 'calculate'
+
+        // Advanced pattern analysis algorithm
+        function analyzePattern(history) {
+            if (history.length < 5) return [];
+            
+            const patterns = [];
+            const recent = history.slice(-20);
+            
+            const streakPattern = analyzeStreaks(recent);
+            patterns.push(streakPattern);
+            
+            const alternatingPattern = analyzeAlternating(recent);
+            patterns.push(alternatingPattern);
+            
+            const fibPattern = analyzeFibonacci(recent);
+            patterns.push(fibPattern);
+            
+            const statsPattern = analyzeStatistics(recent);
+            patterns.push(statsPattern);
+            
+            const choppyPattern = analyzeChoppy(recent);
+            patterns.push(choppyPattern);
+            
+            return combinePatterns(patterns);
+        }
+
+        function analyzeStreaks(data) {
+            const prediction = [];
+            let currentStreak = 1;
+            let lastValue = data[data.length - 1];
+            
+            for (let i = data.length - 2; i >= 0; i--) {
+                if (data[i] === lastValue) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                if (currentStreak >= 3) {
+                    prediction.push(lastValue === 'B' ? 'P' : 'B');
+                } else {
+                    prediction.push(lastValue);
+                }
+                currentStreak++;
+            }
+            
+            return prediction;
+        }
+
+        function analyzeAlternating(data) {
+            const prediction = [];
+            const last3 = data.slice(-3);
+            
+            const isAlternating = last3.length >= 3 && 
+                                last3[0] !== last3[1] && 
+                                last3[1] !== last3[2];
+            
+            if (isAlternating) {
+                let nextValue = data[data.length - 1] === 'B' ? 'P' : 'B';
+                for (let i = 0; i < 5; i++) {
+                    prediction.push(nextValue);
+                    nextValue = nextValue === 'B' ? 'P' : 'B';
+                }
+            } else {
+                const lastValue = data[data.length - 1];
+                for (let i = 0; i < 5; i++) {
+                    prediction.push(lastValue);
+                }
+            }
+            
+            return prediction;
+        }
+
+        function analyzeFibonacci(data) {
+            const prediction = [];
+            const bankerCount = data.filter(x => x === 'B').length;
+            const playerCount = data.filter(x => x === 'P').length;
+            
+            const goldenRatio = 1.618;
+            const targetBankerRatio = goldenRatio / (goldenRatio + 1);
+            
+            for (let i = 0; i < 5; i++) {
+                const currentBankerRatio = bankerCount / data.length;
+                if (currentBankerRatio < targetBankerRatio) {
+                    prediction.push('B');
+                } else {
+                    prediction.push('P');
+                }
+            }
+            
+            return prediction;
+        }
+
+        function analyzeStatistics(data) {
+            const prediction = [];
+            const bankerCount = data.filter(x => x === 'B').length;
+            const playerCount = data.filter(x => x === 'P').length;
+            
+            const dominant = bankerCount > playerCount ? 'B' : 'P';
+            const minority = dominant === 'B' ? 'P' : 'B';
+            
+            for (let i = 0; i < 5; i++) {
+                if (Math.abs(bankerCount - playerCount) > 3) {
+                    prediction.push(minority);
+                } else {
+                    prediction.push(dominant);
+                }
+            }
+            
+            return prediction;
+        }
+
+        function analyzeChoppy(data) {
+            const prediction = [];
+            const changes = [];
+            
+            for (let i = 1; i < data.length; i++) {
+                changes.push(data[i] !== data[i-1]);
+            }
+            
+            const changeRate = changes.filter(x => x).length / changes.length;
+            
+            if (changeRate > 0.6) {
+                let nextValue = data[data.length - 1] === 'B' ? 'P' : 'B';
+                for (let i = 0; i < 5; i++) {
+                    prediction.push(nextValue);
+                    nextValue = nextValue === 'B' ? 'P' : 'B';
+                }
+            } else {
+                const lastValue = data[data.length - 1];
+                for (let i = 0; i < 5; i++) {
+                    prediction.push(lastValue);
+                }
+            }
+            
+            return prediction;
+        }
+
+        function combinePatterns(patterns) {
+            const combined = [];
+            
+            for (let i = 0; i < 5; i++) {
+                let bankerVotes = 0;
+                let playerVotes = 0;
+                
+                patterns.forEach(pattern => {
+                    if (pattern[i] === 'B') bankerVotes++;
+                    else playerVotes++;
+                });
+                
+                combined.push(bankerVotes > playerVotes ? 'B' : 'P');
+            }
+            
+            return combined;
+        }
+
+        // Input Phase Functions
+        function addInput(result) {
+            if (gamePhase === 'input' && currentInputs.length < 5) {
+                currentInputs.push(result);
+                updateInputDisplay();
+                
+                document.getElementById('predictBtn').disabled = currentInputs.length !== 5;
+            }
+        }
+
+        function removeLastInput() {
+            if (gamePhase === 'input' && currentInputs.length > 0) {
+                currentInputs.pop();
+                updateInputDisplay();
+                document.getElementById('predictBtn').disabled = currentInputs.length !== 5;
+            }
+        }
+
+        function clearInputs() {
+            if (gamePhase === 'input') {
+                currentInputs = [];
+                updateInputDisplay();
+                document.getElementById('predictBtn').disabled = true;
+            }
+        }
+
+        function updateInputDisplay() {
+            const circles = document.querySelectorAll('#inputCircles .input-circle');
+            circles.forEach((circle, index) => {
+                if (index < currentInputs.length) {
+                    const result = currentInputs[index];
+                    circle.textContent = result;
+                    circle.className = `input-circle ${result === 'B' ? 'banker' : 'player'}`;
+                } else {
+                    circle.textContent = '';
+                    circle.className = 'input-circle';
+                }
+            });
+        }
+
+        // Prediction Phase Functions
+        function generatePrediction() {
+            if (gamePhase === 'input' && currentInputs.length === 5) {
+                patternHistory.push(...currentInputs);
+                currentPrediction = analyzePattern(patternHistory);
+                
+                const circles = document.querySelectorAll('#predictionCircles .prediction-circle');
+                circles.forEach((circle, index) => {
+                    const result = currentPrediction[index];
+                    circle.textContent = result;
+                    circle.className = `prediction-circle ${result === 'B' ? 'banker' : 'player'}`;
+                });
+                
+                gamePhase = 'prediction';
+                updateSectionVisibility();
+            }
+        }
+
+        function startNextRound() {
+            if (gamePhase === 'prediction') {
+                gamePhase = 'actual';
+                actualResults = [];
+                document.getElementById('actualRoundNumber').textContent = currentRound + 1;
+                updateSectionVisibility();
+                updateActualDisplay();
+            }
+        }
+
+        // Actual Results Phase Functions
+        function addActual(result) {
+            if (gamePhase === 'actual' && actualResults.length < 5) {
+                actualResults.push(result);
+                updateActualDisplay();
+                updateStatusIndicator();
+                
+                document.getElementById('calculateBtn').disabled = actualResults.length !== 5;
+            }
+        }
+
+        function removeLastActual() {
+            if (gamePhase === 'actual' && actualResults.length > 0) {
+                actualResults.pop();
+                updateActualDisplay();
+                updateStatusIndicator();
+                document.getElementById('calculateBtn').disabled = actualResults.length !== 5;
+            }
+        }
+
+        function clearActual() {
+            if (gamePhase === 'actual') {
+                actualResults = [];
+                updateActualDisplay();
+                updateStatusIndicator();
+                document.getElementById('calculateBtn').disabled = true;
+            }
+        }
+
+        function updateActualDisplay() {
+            const circles = document.querySelectorAll('#actualCircles .input-circle');
+            circles.forEach((circle, index) => {
+                if (index < actualResults.length) {
+                    const result = actualResults[index];
+                    circle.textContent = result;
+                    circle.className = `input-circle ${result === 'B' ? 'banker' : 'player'}`;
+                } else {
+                    circle.textContent = '';
+                    circle.className = 'input-circle';
+                }
+            });
+        }
+
+        function updateStatusIndicator() {
+            const indicator = document.getElementById('statusIndicator');
+            if (actualResults.length === 5) {
+                indicator.textContent = 'พร้อมคำนวณผล!';
+                indicator.className = 'status-indicator status-ready';
+            } else {
+                indicator.textContent = `กำลังรอผลจริง... (${actualResults.length}/5)`;
+                indicator.className = 'status-indicator status-waiting';
+            }
+        }
+
+        // Calculate Phase Functions
+        function calculateAccuracy() {
+            if (gamePhase === 'actual' && actualResults.length === 5) {
+                let correctCount = 0;
+                const resultSymbols = [];
+                
+                for (let i = 0; i < 5; i++) {
+                    if (actualResults[i] === currentPrediction[i]) {
+                        correctCount++;
+                        resultSymbols.push('✓');
+                    } else {
+                        resultSymbols.push('×');
+                    }
+                }
+                
+                if (correctCount >= 3) {
+                    correctPredictions++;
+                } else {
+                    wrongPredictions++;
+                }
+                
+                allResults.push({
+                    round: currentRound,
+                    symbols: resultSymbols,
+                    correct: correctCount,
+                    total: 5
+                });
+                
+                // Prepare for next round
+                currentRound++;
+                playedRounds++;
+                currentInputs = [...actualResults]; // Use actual results as input for next prediction
+                actualResults = [];
+                currentPrediction = [];
+                
+                gamePhase = 'input';
+                updateSectionVisibility();
+                updateInputDisplay();
+                updateResultsList();
+                updateStats();
+                updateRoundInfo();
+                
+                document.getElementById('predictBtn').disabled = false;
+            }
+        }
+
+        // UI Management Functions
+        function updateSectionVisibility() {
+            document.getElementById('inputSection').classList.toggle('hidden', gamePhase !== 'input');
+            document.getElementById('predictionSection').classList.toggle('hidden', gamePhase !== 'prediction');
+            document.getElementById('actualSection').classList.toggle('hidden', gamePhase !== 'actual');
+        }
+
+        function updateResultsList() {
+            const listElement = document.getElementById('resultsList');
+            
+            if (allResults.length === 0) {
+                listElement.innerHTML = `
+                    <div style="text-align: center; opacity: 0.6; padding: 20px;">
+                        ยังไม่มีผลลัพธ์
+                    </div>
+                `;
+                return;
+            }
+            
+            listElement.innerHTML = '';
+            
+            allResults.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                
+                const roundElement = document.createElement('div');
+                roundElement.className = 'result-round';
+                roundElement.textContent = `${result.round}.`;
+                
+                const symbolsElement = document.createElement('div');
+                symbolsElement.className = 'result-symbols';
+                
+                result.symbols.forEach(symbol => {
+                    const symbolElement = document.createElement('span');
+                    symbolElement.className = 'result-symbol';
+                    symbolElement.textContent = symbol;
+                    symbolElement.style.color = symbol === '✓' ? '#4ecdc4' : '#ff4757';
+                    symbolsElement.appendChild(symbolElement);
+                });
+                
+                item.appendChild(roundElement);
+                item.appendChild(symbolsElement);
+                listElement.appendChild(item);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctPredictions;
+            document.getElementById('wrongCount').textContent = wrongPredictions;
+            
+            const total = correctPredictions + wrongPredictions;
+            const accuracy = total > 0 ? Math.round((correctPredictions / total) * 100) : 0;
+            document.getElementById('accuracyRate').textContent = `${accuracy}%`;
+        }
+
+        function updateRoundInfo() {
+            document.getElementById('currentRound').textContent = currentRound;
+            document.getElementById('playedRounds').textContent = playedRounds;
+        }
+
+        function resetAll() {
+            currentInputs = [];
+            currentPrediction = [];
+            actualResults = [];
+            allResults = [];
+            currentRound = 1;
+            playedRounds = 0;
+            correctPredictions = 0;
+            wrongPredictions = 0;
+            patternHistory = [];
+            gamePhase = 'input';
+            
+            updateSectionVisibility();
+            updateInputDisplay();
+            updateResultsList();
+            updateStats();
+            updateRoundInfo();
+            
+            document.getElementById('predictBtn').disabled = true;
+            document.getElementById('calculateBtn').disabled = true;
+        }
+
+        // Initialize
+        updateSectionVisibility();
+        updateInputDisplay();
+        updateResultsList();
+        updateStats();
+        updateRoundInfo();
+    </script>
+</body>
+</html>

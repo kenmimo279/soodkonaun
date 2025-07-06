@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baccarat Analyzer</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Baccarat Analyzer</h1>
+        </div>
+
+        <!-- Round / Stats Quick Info -->
+        <div class="round-info">
+            <div>รอบปัจจุบัน: <span id="currentRound">1</span></div>
+            <div>เล่นแล้ว: <span id="playedRounds">0</span></div>
+        </div>
+
+        <!-- ===== INPUT SECTION ===== -->
+        <div id="inputSection" class="section">
+            <div class="section-title">ใส่ผล 5 ตา (หลัก)</div>
+
+            <!-- Circles -->
+            <div id="inputCircles" class="input-circles">
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+            </div>
+
+            <!-- Bet Buttons -->
+            <div class="bet-buttons">
+                <button class="bet-btn banker" onclick="addInput('B')">B</button>
+                <button class="bet-btn player"  onclick="addInput('P')">P</button>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button class="control-btn" onclick="removeLastInput()">ย้อน 1</button>
+                <button class="control-btn" onclick="clearInputs()">ล้าง</button>
+            </div>
+
+            <!-- Predict -->
+            <button id="predictBtn" class="action-btn predict" onclick="generatePrediction()" disabled>
+                ทำนายผลถัดไป
+            </button>
+        </div>
+
+        <!-- ===== PREDICTION SECTION ===== -->
+        <div id="predictionSection" class="section hidden">
+            <div class="section-title">ผลทำนาย 5 ตาถัดไป</div>
+
+            <!-- Prediction Circles -->
+            <div id="predictionCircles" class="prediction-circles">
+                <div class="prediction-circle"></div>
+                <div class="prediction-circle"></div>
+                <div class="prediction-circle"></div>
+                <div class="prediction-circle"></div>
+                <div class="prediction-circle"></div>
+            </div>
+
+            <button class="action-btn next-round" onclick="startNextRound()">
+                กรอกผลจริง
+            </button>
+        </div>
+
+        <!-- ===== ACTUAL SECTION ===== -->
+        <div id="actualSection" class="section hidden">
+            <div id="statusIndicator" class="status-indicator status-waiting">
+                กำลังรอผลจริง... (0/5)
+            </div>
+
+            <!-- Actual Circles -->
+            <div id="actualCircles" class="input-circles">
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+                <div class="input-circle"></div>
+            </div>
+
+            <!-- Bet Buttons -->
+            <div class="bet-buttons">
+                <button class="bet-btn banker" onclick="addActual('B')">B</button>
+                <button class="bet-btn player" onclick="addActual('P')">P</button>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <button class="control-btn" onclick="removeLastActual()">ย้อน 1</button>
+                <button class="control-btn" onclick="clearActual()">ล้าง</button>
+            </div>
+
+            <!-- Calculate -->
+            <button id="calculateBtn" class="action-btn calculate" onclick="calculateAccuracy()" disabled>
+                คำนวณความแม่น
+            </button>
+        </div>
+
+        <!-- ===== RESULTS ===== -->
+        <div class="section">
+            <div class="section-title">สรุปแต่ละรอบ</div>
+            <div id="resultsList" class="results-list">
+                <div style="text-align:center;opacity:.6;padding:20px;">ยังไม่มีผลลัพธ์</div>
+            </div>
+        </div>
+
+        <!-- ===== STATISTICS ===== -->
+        <div class="stats">
+            <div class="stat-item">
+                <div id="correctCount" class="stat-value">0</div>
+                <div class="stat-label">รอบแม่น ≥3/5</div>
+            </div>
+            <div class="stat-item">
+                <div id="wrongCount" class="stat-value">0</div>
+                <div class="stat-label">รอบพลาด &lt;3/5</div>
+            </div>
+            <div class="stat-item">
+                <div id="accuracyRate" class="stat-value">0%</div>
+                <div class="stat-label">อัตราความแม่น</div>
+            </div>
+        </div>
+
+        <!-- ===== RESET BUTTON ===== -->
+        <button class="action-btn" style="margin-top:25px;background:#999;" onclick="resetAll()">
+            รีเซ็ตทั้งหมด
+        </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js" defer></script>
+</body>
+</html>
